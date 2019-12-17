@@ -165,7 +165,7 @@ class PointNetClassifier(nn.Module):
     adds classification layers on top.
     .. note::
         If you use this code, please cite the original paper in addition to Kaolin.
-        
+
         .. code-block::
             @article{qi2016pointnet,
               title={PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation},
@@ -208,7 +208,7 @@ class PointNetClassifier(nn.Module):
     def __init__(self,
                  in_channels: int = 3,
                  feat_size: int = 1024,
-                 num_classes: int = 2,
+                 num_classes: int = 11,
                  dropout: float = 0.,
                  classifier_layer_dims: Iterable[int] = [512, 256],
                  feat_layer_dims: Iterable[int] = [64, 128],
@@ -321,7 +321,7 @@ class PointNetSegmenter(nn.Module):
     adds per-point segmentation layers on top.
     .. note::
         If you use this code, please cite the original paper in addition to Kaolin.
-        
+
         .. code-block::
             @article{qi2016pointnet,
               title={PointNet: Deep Learning on Point Sets for 3D Classification and Segmentation},

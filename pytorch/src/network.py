@@ -27,7 +27,7 @@ class AlexNetFc(nn.Module):
     for i in xrange(6):
       self.classifier.add_module("classifier"+str(i), model_alexnet.classifier[i])
     self.__in_features = model_alexnet.classifier[6].in_features
-  
+
   def forward(self, x):
     x = self.features(x)
     x = x.view(x.size(0), 256*6*6)
@@ -36,7 +36,7 @@ class AlexNetFc(nn.Module):
 
   def output_num(self):
     return self.__in_features
-  
+
 class VoxNetFc(nn.Module):
   def __init__(self):
     super(VoxNetFc, self).__init__()
@@ -46,7 +46,7 @@ class VoxNetFc(nn.Module):
     for i in xrange(6):
       self.classifier.add_module("classifier"+str(i), model_alexnet.classifier[i])
     self.__in_features = model_alexnet.classifier[6].in_features
-  
+
   def forward(self, x):
     x = self.features(x)
     x = x.view(x.size(0), 256*6*6)
@@ -55,7 +55,7 @@ class VoxNetFc(nn.Module):
 
   def output_num(self):
     return self.__in_features
-  
+
 class PointNetFc(nn.Module):
   def __init__(self,
                in_channels: int = 3,
@@ -70,10 +70,10 @@ class PointNetFc(nn.Module):
     super(PointNetFc, self).__init__()
     #    model_pointnet = pn(pretrained=True)
     self.feature_extractor = np.PointNetFeatureExtractor(
-        in_channels=in_channels, feat_size=feat_size,
-        layer_dims=feat_layer_dims, global_feat=True,
-        activation=activation, batchnorm=batchnorm,
-        transposed_input=transposed_input
+    in_channels=in_channels, feat_size=feat_size,
+    layer_dims=feat_layer_dims, global_feat=True,
+    activation=activation, batchnorm=batchnorm,
+    transposed_input=transposed_input
     )
 
   def forward(self, x):
@@ -81,8 +81,8 @@ class PointNetFc(nn.Module):
     return x
 
   def output_num(self):
-    return self.__in_features
-  
+    return 1024
+
 class ResNet18Fc(nn.Module):
   def __init__(self):
     super(ResNet18Fc, self).__init__()
