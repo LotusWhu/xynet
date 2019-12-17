@@ -2,7 +2,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torchvision
-from torchvision import models
+#from torchvision import models
+#import kaolin as kal
+from xynet.pointmodels.pointnet import PointNetClassifier as pn
 from torch.autograd import Variable
 
 class SilenceLayer(torch.autograd.Function):
@@ -15,7 +17,7 @@ class SilenceLayer(torch.autograd.Function):
     return 0 * gradOutput
 
 
-# convnet without the last layer
+# convnet with the last feature layer
 class AlexNetFc(nn.Module):
   def __init__(self):
     super(AlexNetFc, self).__init__()
@@ -35,9 +37,9 @@ class AlexNetFc(nn.Module):
   def output_num(self):
     return self.__in_features
   
-class VoxNet(nn.Module):
+class VoxNetFc(nn.Module):
   def __init__(self):
-    super(VoxNet, self).__init__()
+    super(VoxNetFc, self).__init__()
     model_alexnet = models.alexnet(pretrained=True)
     self.features = model_alexnet.features
     self.classifier = nn.Sequential()
@@ -54,7 +56,33 @@ class VoxNet(nn.Module):
   def output_num(self):
     return self.__in_features
   
+class PointNetFc(nn.Module):
+  def __init__(self,
+               in_channels: int = 3,
+               feat_size: int = 1024,
+               num_classes: int = 2,
+               dropout: float = 0.,
+               classifier_layer_dims: Iterable[int] = [512, 256],
+               feat_layer_dims: Iterable[int] = [64, 128],
+               activation=F.relu,
+               batchnorm: bool = True,
+               transposed_input: bool = False):
+    super(PointNetFc, self).__init__()
+    #    model_pointnet = pn(pretrained=True)
+    self.feature_extractor = np.PointNetFeatureExtractor(
+        in_channels=in_channels, feat_size=feat_size,
+        layer_dims=feat_layer_dims, global_feat=True,
+        activation=activation, batchnorm=batchnorm,
+        transposed_input=transposed_input
+    )
 
+  def forward(self, x):
+    x = self.feature_extractor(x)
+    return x
+
+  def output_num(self):
+    return self.__in_features
+  
 class ResNet18Fc(nn.Module):
   def __init__(self):
     super(ResNet18Fc, self).__init__()
