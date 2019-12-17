@@ -8,7 +8,6 @@ import torch.nn.functional as F
 
 
 # Code copy from https://github.com/daavoo/pyntcloud/blob/master/pyntcloud/learn/models/voxnet.py
-import torch
 from collections import OrderedDict
 
 
