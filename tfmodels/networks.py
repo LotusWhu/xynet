@@ -6,6 +6,7 @@ import torchvision
 #from torchvision import models
 #import kaolin as kal
 from xynet.pointmodels.pointnet import PointNetClassifier as pn
+from xynet.pointmodels.voxnet import VoxNet as vn
 from torch.autograd import Variable
 
 class SilenceLayer(torch.autograd.Function):
@@ -39,23 +40,44 @@ class AlexNetFc(nn.Module):
     return self.__in_features
 
 class VoxNetFc(nn.Module):
-  def __init__(self):
-    super(VoxNetFc, self).__init__()
-    model_alexnet = models.alexnet(pretrained=True)
-    self.features = model_alexnet.features
-    self.classifier = nn.Sequential()
-    for i in xrange(6):
-      self.classifier.add_module("classifier"+str(i), model_alexnet.classifier[i])
-    self.__in_features = model_alexnet.classifier[6].in_features
+	def __init__(self, num_classes, input_shape=(32, 32, 32)):
+                 #weights_path=None,
+                 #load_body_weights=True,
+                 #load_head_weights=True):
+        super(VoxNetFc, self).__init__()
+        self.body = tnn.Sequential(OrderedDict([
+            ('conv1', nn.Conv3d(in_channels=1,
+                                      out_channels=32, kernel_size=5, stride=2)),
+            ('lkrelu1', nn.LeakyReLU()),
+            ('drop1', nn.Dropout(p=0.2)),
+            ('conv2', nn.Conv3d(in_channels=32, out_channels=32, kernel_size=3)),
+            ('lkrelu2', nn.LeakyReLU()),
+            ('pool2', nn.MaxPool3d(2)),
+            ('drop2', nn.Dropout(p=0.3))
+        ]))
 
-  def forward(self, x):
-    x = self.features(x)
-    x = x.view(x.size(0), 256*6*6)
-    x = self.classifier(x)
-    return x
+        # Trick to accept different input shapes
+        x = self.body(torch.autograd.Variable(
+            torch.rand((1, 1) + input_shape)))
+        first_fc_in_features = 1
+        for n in x.size()[1:]:
+            first_fc_in_features *= n
 
-  def output_num(self):
-    return self.__in_features
+        #if weights_path is not None:
+        #    weights = torch.load(weights_path)
+        #    if load_body_weights:
+        #        self.body.load_state_dict(weights["body"])
+        #    elif load_head_weights:
+        #        self.head.load_state_dict(weights["head"])
+
+    def forward(self, x):
+        x = self.body(x)
+        x = x.view(x.size(0), -1)
+        x = self.head(x)
+        return x
+
+	def output_num(self):
+		return first_fc_in_features
 
 class PointNetFc(nn.Module):
   def __init__(self,
